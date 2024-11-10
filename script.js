@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Try to load articles data from localStorage
     const storedArticlesData = localStorage.getItem("articlesData");
     const articlesData = storedArticlesData ? JSON.parse(storedArticlesData) : {
-        "articles": [
+    "articles": [
     {
       "id": 1,
       "title": "New Study Reveals Surprising Health Benefits of Coffee",
@@ -219,18 +219,28 @@ document.addEventListener("DOMContentLoaded", () => {
 		popularArticleContainer.appendChild(card);
 	};
 
-	// sorting functionality
-    document.querySelector(".dropdown-menu").addEventListener("click", (event) => {
-        if (event.target.textContent === "Date") {
-            const sortedByDate = [...articlesData.articles].sort((a, b) => new Date(b.date) - new Date(a.date));
-            renderArticles(sortedByDate);
-        } else if (event.target.textContent === "Popularity") {
-            const sortedByViews = [...articlesData.articles].sort((a, b) => b.views - a.views);
-            renderArticles(sortedByViews);
+    const applySort = (sortOption) => {
+        let sortedArticles;
+        if (sortOption === "date") {
+            sortedArticles = [...articlesData.articles].sort((a, b) => new Date(b.date) - new Date(a.date));
+        } else if (sortOption === "popularity") {
+            sortedArticles = [...articlesData.articles].sort((a, b) => b.views - a.views);
         }
+        renderArticles(sortedArticles);
+    };
+
+    document.querySelector(".dropdown-menu").addEventListener("click", (event) => {
+        const sortOption = event.target.textContent.toLowerCase();
+        localStorage.setItem("sortPreference", sortOption);
+        applySort(sortOption);
     });
 
-    // Initial render of articles
-    renderArticles(articlesData.articles);
+    // Initial render of articles with saved sort preference
+    const savedSortPreference = localStorage.getItem("sortPreference");
+    if (savedSortPreference) {
+        applySort(savedSortPreference);
+    } else {
+        renderArticles(articlesData.articles);
+    }
     displayMostPopular(articlesData.articles);
 });
